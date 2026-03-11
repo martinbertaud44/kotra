@@ -1,0 +1,26 @@
+{
+  "name": "Kotra — Kochako Tranui",
+  "short_name": "Kotra",
+  "description": "L'app officielle de la Kotra — réseau ferroviaire national du Kochako. Horaires, billets, Palfetro, Kochair.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a1628",
+  "theme_color": "#1a3a6e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["travel", "lifestyle"],
+  "lang": "fr"
+}

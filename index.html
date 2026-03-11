@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Kotra"/>
+<meta name="theme-color" content="#05101f"/>
+<link rel="manifest" href="manifest.json"/>
+<title>Kotra</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+/* =============================================
+   KOTRA — DESIGN SYSTEM
+   Dark railway premium · Syne + Instrument Serif
+   ============================================= */
+:root {
+  /* Core palette */
+  --ink:       #05101f;
+  --ink2:      #081526;
+  --ink3:      #0c1d35;
+  --steel:     #112240;
+  --rail:      #1a3a6e;
+  --electric:  #2f80f5;
+  --arc:       #5aa4ff;
+  --spark:     #a8d4ff;
+  --amber:     #f0a500;
+  --amber2:    #ffc340;
+  --signal:    #e8001c;
+  --go:        #1db86a;
+
+  /* Text */
+  --white:  #ffffff;
+  --off:    #c8daf0;
+  --muted:  #6a8aac;
+  --dim:    #3a5270;
+
+  /* Glass */
+  --glass:       rgba(17,34,64,.55);
+  --glass2:      rgba(17,34,64,.8);
+  --glass-border: rgba(90,164,255,.12);
+  --glass-border2:rgba(90,164,255,.07);
+
+  /* Layout */
+  --tabh: 70px;
+  --st: env(safe-area-inset-top, 44px);
+  --sb: env(safe-area-inset-bottom, 0px);
+  --r: 20px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--ink); }
+body { font-family: 'Syne', sans-serif; color: var(--white); overscroll-behavior: none; }
+
+/* ===== ANIMATED BACKGROUND ===== */
+.bg-scene {
+  position: fixed; inset: 0; z-index: -3; overflow: hidden;
+  background: linear-gradient(160deg, #081526 0%, #05101f 50%, #060d18 100%);
+}
+/* Moving rail lines */
+.rails {
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent 119px, rgba(47,128,245,.04) 120px),
+    repeating-linear-gradient(180deg, transparent, transparent 79px, rgba(47,128,245,.03) 80px);
+  animation: railShift 60s linear infinite;
+}
+@keyframes railShift { to { background-position: 120px 80px; } }
+
+/* Diagonal accent lines */
+.accent-lines {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent, transparent 80px,
+    rgba(47,128,245,.025) 80px, rgba(47,128,245,.025) 81px
+  );
+}
+
+/* Atmospheric glows */
+.glow { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+.g1 { width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(47,128,245,.13), transparent 70%); top: -150px; left: -100px; animation: drift1 25s ease-in-out infinite; }
+.g2 { width: 400px; height: 500px; background: radial-gradient(ellipse, rgba(240,165,0,.07), transparent 70%); top: 40%; right: -120px; animation: drift2 30s ease-in-out infinite; }
+.g3 { width: 350px; height: 350px; background: radial-gradient(ellipse, rgba(29,184,106,.06), transparent 70%); bottom: 10%; left: 5%; animation: drift1 20s ease-in-out infinite reverse; }
+@keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,-30px)} }
+@keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,40px)} }
+
+/* Noise texture overlay */
+.noise {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity: .03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px;
+}
+
+/* ===== APP SHELL ===== */
+#app { height: 100%; display: flex; flex-direction: column; }
+
+/* ===== STATUS BAR ===== */
+.sb-space { height: var(--st); min-height: 44px; flex-shrink: 0; }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  flex-shrink: 0;
+  padding: 0 20px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative;
+}
+.topbar::after {
+  content: ''; position: absolute; bottom: 0; left: 20px; right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+}
+.logo-wrap { display: flex; align-items: center; gap: 10px; }
+.logo-img { height: 32px; width: auto; object-fit: contain; filter: brightness(1.05); }
+.logo-divider { width: 1px; height: 22px; background: var(--dim); }
+.logo-tagline { font-size: .58rem; font-weight: 500; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; line-height: 1.3; }
+.logo-tagline span { display: block; color: var(--arc); }
+
+.topbar-actions { display: flex; gap: 8px; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem; cursor: pointer; position: relative;
+  backdrop-filter: blur(12px);
+  transition: background .15s, transform .12s;
+}
+.icon-btn:active { transform: scale(.91); background: rgba(47,128,245,.15); }
+.alert-pip {
+  position: absolute; top: 7px; right: 7px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--amber); border: 1.5px solid var(--ink);
+  animation: pipPulse 2.5s ease-in-out infinite;
+}
+@keyframes pipPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ===== SCROLL ===== */
+.scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+.pad { height: calc(var(--tabh) + var(--sb) + 16px); }
+
+/* ===== PAGES ===== */
+.page { display: none; padding: 16px 20px 0; }
+.page.active { display: block; animation: pageIn .22s ease; }
+@keyframes pageIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ===== SECTION HEADERS ===== */
+.sec { margin-bottom: 14px; }
+.sec-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--arc);
+  margin-bottom: 4px;
+}
+.sec-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.35rem; color: var(--white); line-height: 1.1;
+  font-style: italic;
+}
+.sec-title b { font-style: normal; font-weight: 400; }
+.sec-row { display: flex; align-items: flex-end; justify-content: space-between; }
+.sec-link {
+  font-size: .72rem; font-weight: 600; color: var(--arc);
+  background: none; border: none; cursor: pointer; font-family: 'Syne', sans-serif;
+  padding: 0; transition: color .15s;
+}
+.sec-link:active { color: var(--spark); }
+
+/* ===== SEARCH WIDGET ===== */
+.search-widget {
+  background: var(--glass2);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(20px);
+  position: relative; overflow: hidden;
+}
+.search-widget::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--electric), var(--amber), var(--electric));
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+}
+@keyframes shimmer { to { background-position: 200% 0; } }
+
+.sw-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+}
+.sw-stations { position: relative; margin-bottom: 14px; }
+.sw-field {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--glass-border2);
+  border-radius: 14px; padding: 12px 14px;
+  cursor: pointer; transition: border-color .15s, background .15s;
+  margin-bottom: 8px;
+}
+.sw-field:last-child { margin-bottom: 0; }
+.sw-field:active, .sw-field.focus { border-color: rgba(90,164,255,.3); background: rgba(47,128,245,.06); }
+.sw-dot { flex-shrink: 0; }
+.dot-from { width: 10px; height: 10px; border-radius: 50%; background: var(--go); box-shadow: 0 0 8px rgba(29,184,106,.5); }
+.dot-to { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--electric); }
+.sw-text { flex: 1; }
+.sw-text-label { font-family: 'JetBrains Mono', monospace; font-size: .55rem; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 2px; }
+.sw-text-val { font-size: .88rem; font-weight: 600; color: var(--white); }
+.sw-text-val.ph { color: var(--muted); }
+.sw-connector {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--electric), var(--rail));
+  border: 2px solid var(--ink2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; cursor: pointer; z-index: 2;
+  box-shadow: 0 0 12px rgba(47,128,245,.3);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.sw-connector:active { transform: translateY(-50%) rotate(180deg) scale(.9); }
+
+.sw-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.sw-date {
+  background: rgba(255,255,255,.04); border: 1px solid var(--glass-border2);
+  border-radius: 14px; padding: 11px 14px; cursor: pointer; transition: border-color .15s;
+}
+.sw-date:active { border-color: rgba(90,164,255,.3); }
+.sw-date-label { font-family: 'JetBrains Mono', monospace; font-size: .55rem; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 2px; }
+.sw-date-val { font-size: .82rem; font-weight: 600; color: var(--white); }
+
+.search-go {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--electric) 0%, #1a6aff 100%);
+  border: none; border-radius: 14px;
+  font-family: 'Syne', sans-serif; font-size: .88rem; font-weight: 700;
+  color: #fff; cursor: pointer; letter-spacing: .04em;
+  box-shadow: 0 4px 24px rgba(47,128,245,.4), inset 0 1px 0 rgba(255,255,255,.15);
+  transition: transform .15s, box-shadow .15s;
+}
+.search-go:active { transform: scale(.98); box-shadow: 0 2px 12px rgba(47,128,245,.3); }
+
+/* ===== TICKET CARDS ===== */
+.ticket {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  transition: transform .15s, border-color .15s;
+  position: relative;
+}
+.ticket:active { transform: scale(.985); }
+.ticket::before {
+  content: ''; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+.ticket.active-t::before { background: linear-gradient(180deg, var(--go), rgba(29,184,106,.3)); }
+.ticket.upcoming-t::before { background: linear-gradient(180deg, var(--electric), rgba(47,128,245,.3)); }
+.ticket.past-t::before { background: var(--dim); }
+
+.ticket-inner { padding: 16px 18px 16px 20px; }
+.ticket-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.ticket-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 100px;
+}
+.badge-active { background: rgba(29,184,106,.12); color: var(--go); border: 1px solid rgba(29,184,106,.25); }
+.badge-upcoming { background: rgba(47,128,245,.1); color: var(--arc); border: 1px solid rgba(47,128,245,.2); }
+.badge-past { background: rgba(58,82,112,.3); color: var(--muted); border: 1px solid var(--glass-border2); }
+.ticket-train-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem; color: var(--muted); letter-spacing: .06em;
+}
+
+.ticket-route { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.tr-city { flex: 0 0 auto; }
+.tr-city-code {
+  font-family: 'Instrument Serif', serif; font-size: 1.4rem; color: var(--white);
+  letter-spacing: -.02em; line-height: 1;
+}
+.tr-city-name { font-size: .65rem; font-weight: 500; color: var(--muted); margin-top: 1px; }
+.tr-rail {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.tr-rail-line {
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, var(--electric), rgba(47,128,245,.3));
+  border-radius: 2px; position: relative;
+}
+.tr-rail-line::after {
+  content: '▶'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  font-size: .55rem; color: var(--arc);
+}
+.tr-duration {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; color: var(--muted); letter-spacing: .06em;
+}
+
+.ticket-times { display: flex; align-items: center; justify-content: space-between; }
+.tt-block { }
+.tt-time { font-size: 1rem; font-weight: 700; color: var(--white); letter-spacing: -.01em; }
+.tt-date { font-size: .65rem; font-weight: 500; color: var(--dim); margin-top: 1px; }
+.tt-class {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .08em; text-transform: uppercase;
+  background: rgba(240,165,0,.1); color: var(--amber2);
+  border: 1px solid rgba(240,165,0,.2); border-radius: 6px; padding: 2px 8px;
+}
+
+/* ===== QUICK ACTIONS ===== */
+.quick-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 18px; }
+.qb { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+.qb-icon {
+  width: 52px; height: 52px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+  position: relative; overflow: hidden;
+  transition: transform .15s;
+}
+.qb:active .qb-icon { transform: scale(.88); }
+.qb-icon::before {
+  content: ''; position: absolute; inset: 0;
+  background: inherit; filter: blur(0);
+}
+.qi1 { background: linear-gradient(135deg,#0f2a5a,#1a5fc8); box-shadow: 0 4px 16px rgba(26,95,200,.25); }
+.qi2 { background: linear-gradient(135deg,#0a2a18,#1a7a40); box-shadow: 0 4px 16px rgba(26,122,64,.2); }
+.qi3 { background: linear-gradient(135deg,#2a1a0a,#a06010); box-shadow: 0 4px 16px rgba(160,96,16,.2); }
+.qi4 { background: linear-gradient(135deg,#1a0a2a,#6a20b0); box-shadow: 0 4px 16px rgba(106,32,176,.2); }
+.qi5 { background: linear-gradient(135deg,#0a1a2a,#0a70b0); box-shadow: 0 4px 16px rgba(10,112,176,.2); }
+.qi6 { background: linear-gradient(135deg,#2a1a1a,#b02020); box-shadow: 0 4px 16px rgba(176,32,32,.2); }
+.qi7 { background: linear-gradient(135deg,#0a2a28,#0a9090); box-shadow: 0 4px 16px rgba(10,144,144,.2); }
+.qi8 { background: linear-gradient(135deg,#1a2a0a,#507010); box-shadow: 0 4px 16px rgba(80,112,16,.2); }
+.qb-label { font-size: .58rem; font-weight: 600; color: var(--muted); text-align: center; line-height: 1.3; }
+
+/* ===== ALERTS ===== */
+.alert {
+  border-radius: 16px; padding: 14px 16px;
+  margin-bottom: 10px; display: flex; gap: 12px; cursor: pointer;
+  transition: filter .15s;
+}
+.alert:active { filter: brightness(1.1); }
+.alert.warn { background: rgba(240,165,0,.07); border: 1px solid rgba(240,165,0,.18); }
+.alert.crit { background: rgba(232,0,28,.06); border: 1px solid rgba(232,0,28,.18); }
+.alert.info { background: rgba(47,128,245,.06); border: 1px solid rgba(47,128,245,.15); }
+.alert-icon { font-size: 1.1rem; flex-shrink: 0; padding-top: 1px; }
+.alert-body { flex: 1; }
+.alert-title { font-size: .8rem; font-weight: 700; margin-bottom: 2px; }
+.alert.warn .alert-title { color: var(--amber2); }
+.alert.crit .alert-title { color: #ff6b6b; }
+.alert.info .alert-title { color: var(--arc); }
+.alert-desc { font-size: .7rem; font-weight: 500; line-height: 1.45; }
+.alert.warn .alert-desc { color: rgba(240,165,0,.6); }
+.alert.crit .alert-desc { color: rgba(255,107,107,.55); }
+.alert.info .alert-desc { color: rgba(90,164,255,.65); }
+.alert-time { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--dim); flex-shrink: 0; align-self: flex-start; }
+
+/* ===== DEPARTURES ===== */
+.departure {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--glass); border: 1px solid var(--glass-border2);
+  border-radius: 16px; padding: 13px 16px;
+  margin-bottom: 9px; cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: border-color .15s, background .15s;
+}
+.departure:active { border-color: var(--glass-border); background: rgba(17,34,64,.7); }
+.dep-time {
+  font-family: 'Instrument Serif', serif; font-size: 1.2rem;
+  color: var(--white); min-width: 48px; text-align: center; line-height: 1;
+}
+.dep-sep { width: 1px; height: 34px; background: linear-gradient(180deg, transparent, var(--dim), transparent); }
+.dep-info { flex: 1; }
+.dep-train {
+  font-family: 'JetBrains Mono', monospace; font-size: .6rem;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 2px;
+}
+.dep-dest { font-size: .88rem; font-weight: 600; color: var(--white); margin-bottom: 1px; }
+.dep-via { font-size: .68rem; font-weight: 500; color: var(--muted); }
+.dep-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.dep-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem; font-weight: 700; padding: 3px 9px; border-radius: 100px;
+}
+.s-ok { background: rgba(29,184,106,.1); color: var(--go); border: 1px solid rgba(29,184,106,.22); }
+.s-late { background: rgba(240,165,0,.1); color: var(--amber2); border: 1px solid rgba(240,165,0,.22); }
+.s-cancel { background: rgba(232,0,28,.1); color: #ff6b6b; border: 1px solid rgba(232,0,28,.2); }
+.dep-voie {
+  font-family: 'JetBrains Mono', monospace; font-size: .58rem; color: var(--dim);
+}
+
+/* ===== JOURNEY RESULTS ===== */
+.journey {
+  background: var(--glass); border: 1px solid var(--glass-border2);
+  border-radius: 18px; padding: 16px;
+  margin-bottom: 10px; cursor: pointer;
+  backdrop-filter: blur(16px);
+  transition: border-color .2s, background .2s;
+}
+.journey.picked { border-color: rgba(47,128,245,.4); background: rgba(47,128,245,.06); }
+.j-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.j-times { display: flex; align-items: center; gap: 10px; }
+.j-dep, .j-arr {
+  font-family: 'Instrument Serif', serif; font-size: 1.3rem; color: var(--white); letter-spacing: -.02em;
+}
+.j-arrow { font-size: .8rem; color: var(--dim); }
+.j-price {
+  font-family: 'Instrument Serif', serif; font-size: 1.2rem; color: var(--amber2); letter-spacing: -.01em;
+}
+.j-track-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.j-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--electric); flex-shrink: 0; }
+.j-line {
+  flex: 1; height: 2px;
+  background: linear-gradient(90deg, var(--electric), rgba(47,128,245,.25));
+  border-radius: 2px; position: relative;
+}
+.j-line::after { content: '🚂'; position: absolute; left: 48%; top: 50%; transform: translate(-50%,-50%); font-size: .75rem; }
+.j-dot2 { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--electric); flex-shrink: 0; }
+.j-dur { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: var(--muted); }
+.j-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.j-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .04em;
+  padding: 2px 8px; border-radius: 100px;
+  background: rgba(255,255,255,.05); color: var(--muted); border: 1px solid var(--glass-border2);
+}
+.j-tag.t-direct { background: rgba(29,184,106,.08); color: var(--go); border-color: rgba(29,184,106,.18); }
+.j-tag.t-promo { background: rgba(240,165,0,.08); color: var(--amber2); border-color: rgba(240,165,0,.18); }
+.j-tag.t-type { background: rgba(47,128,245,.08); color: var(--arc); border-color: rgba(47,128,245,.18); }
+
+.book-cta {
+  width: 100%; padding: 15px; border-radius: 16px; border: none;
+  background: linear-gradient(135deg, var(--electric), #1060e8);
+  font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700;
+  color: #fff; cursor: pointer; margin-top: 14px; letter-spacing: .03em;
+  box-shadow: 0 6px 24px rgba(47,128,245,.35), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: transform .15s;
+}
+.book-cta:active { transform: scale(.98); }
+
+/* ===== SERVICES ===== */
+.svc-hero {
+  background: var(--glass); border: 1px solid var(--glass-border);
+  border-radius: 22px; padding: 20px; margin-bottom: 12px;
+  backdrop-filter: blur(16px); cursor: pointer; position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 18px;
+  transition: border-color .15s;
+}
+.svc-hero:active { border-color: rgba(90,164,255,.25); }
+.svc-hero::after {
+  content: attr(data-emoji); position: absolute; right: -10px; bottom: -14px;
+  font-size: 5rem; opacity: .07; pointer-events: none; line-height: 1;
+}
+.svc-hero-icon { font-size: 2.2rem; flex-shrink: 0; }
+.svc-hero-text { flex: 1; }
+.svc-hero-name { font-family: 'Instrument Serif', serif; font-size: 1.15rem; color: var(--white); margin-bottom: 3px; }
+.svc-hero-desc { font-size: .72rem; font-weight: 500; color: var(--muted); line-height: 1.45; }
+.svc-hero-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .08em;
+  padding: 3px 9px; border-radius: 100px; flex-shrink: 0;
+}
+.badge-gold { background: rgba(240,165,0,.12); color: var(--amber2); border: 1px solid rgba(240,165,0,.2); }
+.badge-blue { background: rgba(47,128,245,.1); color: var(--arc); border: 1px solid rgba(47,128,245,.2); }
+
+.svc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.svc-card {
+  background: var(--glass); border: 1px solid var(--glass-border2);
+  border-radius: 18px; padding: 18px 14px;
+  cursor: pointer; transition: border-color .15s;
+  position: relative; overflow: hidden;
+}
+.svc-card:active { border-color: var(--glass-border); }
+.svc-card::after { content: attr(data-emoji); position: absolute; right: 6px; bottom: 4px; font-size: 2.8rem; opacity: .08; }
+.svc-card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+.svc-card-name { font-size: .85rem; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+.svc-card-desc { font-size: .68rem; font-weight: 500; color: var(--muted); line-height: 1.4; }
+
+/* KOT channels */
+.kot-row {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--glass); border: 1px solid var(--glass-border2);
+  border-radius: 16px; padding: 13px 16px; margin-bottom: 9px;
+  cursor: pointer; transition: background .15s;
+}
+.kot-row:active { background: rgba(17,34,64,.7); }
+.kot-logo {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: .78rem; font-weight: 800;
+  flex-shrink: 0; letter-spacing: .02em;
+}
+.kl1 { background: linear-gradient(135deg,#0f2a60,#1a5fc8); color: #fff; }
+.kl2 { background: linear-gradient(135deg,#0a2a18,#1d9450); color: #fff; }
+.kl3 { background: linear-gradient(135deg,#380a10,#c8001a); color: #fff; }
+.kl4 { background: linear-gradient(135deg,#2a1c08,#c88000); color: #fff; }
+.kot-info { flex: 1; }
+.kot-name { font-size: .88rem; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+.kot-desc { font-size: .68rem; font-weight: 500; color: var(--muted); }
+.live-pip {
+  font-family: 'JetBrains Mono', monospace; font-size: .56rem;
+  padding: 2px 7px; border-radius: 100px;
+}
+.lp-live { background: rgba(232,0,28,.12); color: #ff6b6b; border: 1px solid rgba(232,0,28,.2); }
+.lp-lang { background: rgba(47,128,245,.1); color: var(--arc); border: 1px solid rgba(47,128,245,.2); }
+
+/* ===== PROFIL ===== */
+.profile-hero {
+  background: var(--glass2); border: 1px solid var(--glass-border);
+  border-radius: 24px; padding: 24px 20px; margin-bottom: 16px;
+  backdrop-filter: blur(20px); text-align: center; position: relative; overflow: hidden;
+}
+.profile-hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--electric), var(--amber), var(--electric));
+  background-size: 200%;
+  animation: shimmer 4s linear infinite;
+}
+.ph-av {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--rail), var(--electric));
+  display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+  margin: 0 auto 12px;
+  box-shadow: 0 0 0 3px rgba(47,128,245,.2), 0 4px 20px rgba(47,128,245,.25);
+}
+.ph-name { font-family: 'Instrument Serif', serif; font-size: 1.25rem; color: var(--white); margin-bottom: 3px; }
+.ph-sub { font-size: .72rem; font-weight: 500; color: var(--muted); margin-bottom: 16px; }
+.ph-card {
+  background: rgba(255,255,255,.04); border: 1px solid var(--glass-border2);
+  border-radius: 12px; padding: 12px 16px; text-align: left; margin-bottom: 16px;
+}
+.ph-card-label { font-family: 'JetBrains Mono', monospace; font-size: .56rem; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+.ph-card-num { font-family: 'JetBrains Mono', monospace; font-size: .82rem; color: var(--white); letter-spacing: .1em; }
+.ph-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.ph-stat { background: rgba(255,255,255,.03); border-radius: 10px; padding: 10px; }
+.ph-stat-n { font-family: 'Instrument Serif', serif; font-size: 1.3rem; color: var(--white); line-height: 1; }
+.ph-stat-l { font-family: 'JetBrains Mono', monospace; font-size: .52rem; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-top: 3px; }
+
+.pass-card {
+  background: linear-gradient(135deg, #0f2a60 0%, #071828 100%);
+  border: 1px solid rgba(47,128,245,.25); border-radius: 20px;
+  padding: 18px; margin-bottom: 16px; position: relative; overflow: hidden;
+}
+.pass-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(90,164,255,.4), transparent);
+}
+.pass-card::after {
+  content: '🚂'; position: absolute; right: 10px; bottom: 8px; font-size: 4.5rem; opacity: .07;
+}
+.pass-label { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(90,164,255,.6); margin-bottom: 6px; }
+.pass-name { font-family: 'Instrument Serif', serif; font-size: 1.1rem; color: var(--white); margin-bottom: 3px; }
+.pass-valid { font-size: .7rem; font-weight: 500; color: rgba(90,164,255,.55); margin-bottom: 14px; }
+.pass-bar-bg { background: rgba(255,255,255,.1); border-radius: 100px; height: 4px; }
+.pass-bar-fill { background: linear-gradient(90deg, var(--electric), var(--arc)); border-radius: 100px; height: 4px; width: 68%; }
+.pass-bar-labels { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: .55rem; color: rgba(90,164,255,.45); margin-top: 5px; }
+
+.pmenu-item {
+  background: var(--glass); border: 1px solid var(--glass-border2);
+  border-radius: 16px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; margin-bottom: 9px; backdrop-filter: blur(12px);
+  transition: border-color .15s, background .15s;
+}
+.pmenu-item:active { border-color: var(--glass-border); background: rgba(17,34,64,.7); }
+.pm-icon {
+  width: 38px; height: 38px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem; flex-shrink: 0;
+}
+.pm1 { background: linear-gradient(135deg,#0f2a5a,#1a5fc8); }
+.pm2 { background: linear-gradient(135deg,#0a2a18,#1d9450); }
+.pm3 { background: linear-gradient(135deg,#2a1c08,#c88000); }
+.pm4 { background: linear-gradient(135deg,#1a0a2a,#6a20b0); }
+.pm5 { background: linear-gradient(135deg,#0a1a2a,#0a70b0); }
+.pm-info { flex: 1; }
+.pm-title { font-size: .85rem; font-weight: 700; color: var(--white); margin-bottom: 1px; }
+.pm-sub { font-size: .67rem; font-weight: 500; color: var(--muted); }
+.pm-arrow { color: var(--dim); font-size: .8rem; }
+
+/* ===== BILLET SHEET ===== */
+.ov {
+  position: fixed; inset: 0; background: rgba(5,16,31,.75);
+  backdrop-filter: blur(8px); z-index: 400;
+  opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.ov.open { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  max-height: 90vh; background: #0a1c36;
+  border: 1px solid var(--glass-border); border-bottom: none;
+  border-radius: 24px 24px 0 0;
+  z-index: 401; transform: translateY(102%);
+  transition: transform .4s cubic-bezier(.32,.72,0,1);
+  display: flex; flex-direction: column;
+  box-shadow: 0 -20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(47,128,245,.06);
+}
+.sheet.open { transform: translateY(0); }
+.sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,.12); border-radius: 100px; margin: 12px auto 0; }
+.sheet-head {
+  padding: 16px 20px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--glass-border2);
+}
+.sheet-head-title { font-family: 'Instrument Serif', serif; font-size: 1.1rem; color: var(--white); }
+.sheet-close {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,.07); border: 1px solid var(--glass-border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; cursor: pointer; color: var(--white);
+}
+.sheet-body { flex: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
+.sheet-foot {
+  padding: 14px 20px; border-top: 1px solid var(--glass-border2);
+  padding-bottom: calc(14px + var(--sb));
+}
+
+/* Billet visuel */
+.billet {
+  background: linear-gradient(145deg, #0f2a5a 0%, #071828 100%);
+  border: 1px solid rgba(47,128,245,.2); border-radius: 20px;
+  overflow: hidden; margin-bottom: 16px; position: relative;
+}
+.billet::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--electric), var(--amber), var(--go));
+}
+.billet-top { padding: 18px 18px 14px; }
+.billet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.billet-logo { height: 22px; width: auto; filter: brightness(1.1); }
+.billet-class {
+  font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .1em;
+  background: rgba(240,165,0,.15); color: var(--amber2);
+  border: 1px solid rgba(240,165,0,.25); border-radius: 6px; padding: 3px 10px;
+}
+.billet-cities { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.bc-city { flex: 0 0 auto; }
+.bc-code { font-family: 'Instrument Serif', serif; font-size: 2rem; color: var(--white); letter-spacing: -.02em; line-height: 1; }
+.bc-name { font-size: .65rem; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.bc-rail { flex: 1; text-align: center; }
+.bc-rail-line { height: 2px; background: linear-gradient(90deg, var(--electric), rgba(47,128,245,.2)); border-radius: 2px; margin-bottom: 4px; position: relative; }
+.bc-rail-line::after { content: '▶'; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: .6rem; color: var(--arc); }
+.bc-rail-dur { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--dim); }
+
+.billet-times { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.bt-block .bt-time { font-family: 'Instrument Serif', serif; font-size: 1.7rem; color: var(--white); letter-spacing: -.03em; line-height: 1; }
+.bt-block .bt-sta { font-size: .65rem; font-weight: 500; color: var(--muted); margin-top: 3px; }
+.bt-mid { display: flex; flex-direction: column; align-items: center; font-size: .75rem; color: var(--dim); }
+
+.billet-details {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+  padding: 14px 18px 16px;
+  border-top: 1px dashed rgba(47,128,245,.12);
+}
+.bd-label { font-family: 'JetBrains Mono', monospace; font-size: .54rem; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 3px; }
+.bd-val { font-size: .82rem; font-weight: 700; color: var(--white); }
+
+.qr-block {
+  background: rgba(255,255,255,.96); border-radius: 16px;
+  padding: 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+}
+.qr-mock {
+  width: 76px; height: 76px; border-radius: 8px;
+  background: #05101f; display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; flex-shrink: 0;
+}
+.qr-info { flex: 1; }
+.qr-title { font-size: .82rem; font-weight: 700; color: #05101f; margin-bottom: 4px; }
+.qr-ref { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: #3a5270; letter-spacing: .08em; margin-bottom: 5px; }
+.qr-note { font-size: .65rem; font-weight: 500; color: #6a8aac; line-height: 1.4; }
+
+.dl-btn {
+  width: 100%; padding: 14px; border-radius: 16px; border: none;
+  background: linear-gradient(135deg, var(--electric), #1060e8);
+  font-family: 'Syne', sans-serif; font-size: .88rem; font-weight: 700;
+  color: #fff; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(47,128,245,.3), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: transform .15s;
+}
+.dl-btn:active { transform: scale(.98); }
+
+/* ===== TAB BAR ===== */
+.tabbar {
+  flex-shrink: 0;
+  background: rgba(8,21,38,.88); backdrop-filter: blur(28px) saturate(160%);
+  border-top: 1px solid rgba(90,164,255,.08);
+  display: flex; padding-bottom: var(--sb);
+  box-shadow: 0 -4px 24px rgba(0,0,0,.4);
+}
+.tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 10px 0 8px; border: none; background: none;
+  font-family: 'Syne', sans-serif; cursor: pointer; gap: 4px; position: relative;
+  transition: opacity .15s;
+}
+.tab-icon { font-size: 1.15rem; transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+.tab-label { font-size: .57rem; font-weight: 700; color: var(--dim); letter-spacing: .05em; transition: color .18s; }
+.tab.active .tab-label { color: var(--arc); }
+.tab.active .tab-icon { transform: scale(1.12); }
+.tab-top {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 22px; height: 2px; border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, var(--electric), var(--arc));
+  opacity: 0; transition: opacity .2s;
+}
+.tab.active .tab-top { opacity: 1; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: calc(var(--tabh) + var(--sb) + 14px);
+  left: 50%; transform: translateX(-50%) translateY(14px);
+  background: rgba(12,29,53,.97); backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border); border-radius: 100px;
+  padding: 10px 20px; z-index: 500;
+  font-family: 'JetBrains Mono', monospace; font-size: .72rem; font-weight: 500;
+  color: var(--off); white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(47,128,245,.06);
+  opacity: 0; pointer-events: none;
+  transition: transform .28s cubic-bezier(.34,1.56,.64,1), opacity .28s;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+.mt16 { margin-top: 16px; }
+.mb16 { margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="bg-scene">
+  <div class="rails"></div>
+  <div class="accent-lines"></div>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="glow g3"></div>
+</div>
+<div class="noise"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- OVERLAY -->
+<div class="ov" id="ov" onclick="closeSheet()"></div>
+
+<!-- BILLET SHEET -->
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <div class="sheet-head-title">Mon billet</div>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="billet">
+      <div class="billet-top">
+        <div class="billet-header">
+          <img class="billet-logo" src="https://i.goopics.net/mhsv7v.png" alt="Kotra"/>
+          <div class="billet-class">1ÈRE CLASSE</div>
+        </div>
+        <div class="billet-cities">
+          <div class="bc-city">
+            <div class="bc-code">DMH</div>
+            <div class="bc-name">Damehishiwa</div>
+          </div>
+          <div class="bc-rail">
+            <div class="bc-rail-line"></div>
+            <div class="bc-rail-dur">1h 47min</div>
+          </div>
+          <div class="bc-city" style="text-align:right">
+            <div class="bc-code">PLF</div>
+            <div class="bc-name">Palfède-sur-Léra</div>
+          </div>
+        </div>
+        <div class="billet-times">
+          <div class="bt-block">
+            <div class="bt-time">08:24</div>
+            <div class="bt-sta">Gare Centrale</div>
+          </div>
+          <div class="bt-mid"><span style="font-size:1.1rem">🚂</span></div>
+          <div class="bt-block" style="text-align:right">
+            <div class="bt-time">10:11</div>
+            <div class="bt-sta">Palfède Centrale</div>
+          </div>
+        </div>
+      </div>
+      <div class="billet-details">
+        <div><div class="bd-label">Train</div><div class="bd-val">KT 2847</div></div>
+        <div><div class="bd-label">Voiture</div><div class="bd-val">04</div></div>
+        <div><div class="bd-label">Siège</div><div class="bd-val">22A</div></div>
+        <div><div class="bd-label">Date</div><div class="bd-val">17 Marui</div></div>
+        <div><div class="bd-label">Classe</div><div class="bd-val">1ère</div></div>
+        <div><div class="bd-label">Tarif</div><div class="bd-val">12 FꝂ</div></div>
+      </div>
+    </div>
+    <div class="qr-block">
+      <div class="qr-mock">📱</div>
+      <div class="qr-info">
+        <div class="qr-title">Scannez à bord</div>
+        <div class="qr-ref">KT-2847-22A-DMH-PLF</div>
+        <div class="qr-note">Présentez ce QR code au contrôleur lors du passage en voiture.</div>
+      </div>
+    </div>
+  </div>
+  <div class="sheet-foot">
+    <button class="dl-btn" onclick="toast('📥 Billet téléchargé en PDF !')">📥 Télécharger le PDF</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="sb-space"></div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo-wrap">
+      <img class="logo-img" src="https://i.goopics.net/mhsv7v.png" alt="Kotra" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='block'"/>
+      <div id="logo-fallback" style="display:none;font-family:'Instrument Serif',serif;font-size:1.4rem;color:#fff">Kotra</div>
+      <div class="logo-divider"></div>
+      <div class="logo-tagline">Kochako Tranui<span>Réseau national</span></div>
+    </div>
+    <div class="topbar-actions">
+      <div class="icon-btn" onclick="toast('🔔 Aucune nouvelle alerte trafic')">
+        🔔<div class="alert-pip"></div>
+      </div>
+      <div class="icon-btn" onclick="switchTab('profile')">👤</div>
+    </div>
+  </div>
+
+  <!-- SCROLL -->
+  <div class="scroll" id="scrollEl">
+
+    <!-- ═══ PAGE: ACCUEIL ═══ -->
+    <div class="page active" id="page-home">
+
+      <!-- Search widget -->
+      <div class="search-widget">
+        <div class="sw-label">// Trouver un train</div>
+        <div class="sw-stations">
+          <div class="sw-field">
+            <div class="sw-dot"><div class="dot-from"></div></div>
+            <div class="sw-text">
+              <div class="sw-text-label">Départ</div>
+              <div class="sw-text-val" id="from-lbl">Damehishiwa Centrale</div>
+            </div>
+          </div>
+          <div class="sw-connector" onclick="swapSta()">⇅</div>
+          <div class="sw-field">
+            <div class="sw-dot"><div class="dot-to"></div></div>
+            <div class="sw-text">
+              <div class="sw-text-label">Arrivée</div>
+              <div class="sw-text-val" id="to-lbl">Palfède-sur-Léra</div>
+            </div>
+          </div>
+        </div>
+        <div class="sw-row">
+          <div class="sw-date" onclick="toast('📅 Sélection de date')">
+            <div class="sw-date-label">Date</div>
+            <div class="sw-date-val">Lun. 17 Marui</div>
+          </div>
+          <div class="sw-date" onclick="toast('👥 Voyageurs')">
+            <div class="sw-date-label">Voyageurs</div>
+            <div class="sw-date-val">1 adulte</div>
+          </div>
+        </div>
+        <button class="search-go" onclick="switchTab('horaires')">Rechercher →</button>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="sec mb16">
+        <div class="sec-eyebrow">// Actions</div>
+      </div>
+      <div class="quick-grid mb16">
+        <div class="qb" onclick="openSheet()"><div class="qb-icon qi1">🎫</div><div class="qb-label">Mes billets</div></div>
+        <div class="qb" onclick="switchTab('horaires')"><div class="qb-icon qi2">🕐</div><div class="qb-label">Horaires</div></div>
+        <div class="qb" onclick="toast('🚇 Palfetro — Lignes A B C D · 38 stations')"><div class="qb-icon qi3">🚇</div><div class="qb-label">Palfetro</div></div>
+        <div class="qb" onclick="switchTab('services')"><div class="qb-icon qi4">✈️</div><div class="qb-label">Kochair</div></div>
+        <div class="qb" onclick="toast('🗺️ Carte du réseau Kotra — 16 États')"><div class="qb-icon qi5">🗺️</div><div class="qb-label">Réseau</div></div>
+        <div class="qb" onclick="toast('♿ Assistance PMR — Réservez à l\'avance')"><div class="qb-icon qi6">♿</div><div class="qb-label">PMR</div></div>
+        <div class="qb" onclick="toast('💳 Renouveler mon abonnement Kotra+')"><div class="qb-icon qi7">💳</div><div class="qb-label">Abonnement</div></div>
+        <div class="qb" onclick="toast('💬 Service client Kotra — 24h/24')"><div class="qb-icon qi8">💬</div><div class="qb-label">Aide</div></div>
+      </div>
+
+      <!-- Alertes -->
+      <div class="sec-row sec">
+        <div><div class="sec-eyebrow">// Trafic</div></div>
+        <button class="sec-link" onclick="toast('📋 Toutes les perturbations en cours')">Tout voir →</button>
+      </div>
+      <div class="alert warn">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-body">
+          <div class="alert-title">Retards axe DMH–PLF</div>
+          <div class="alert-desc">Travaux voie 3. Retards de 8 à 14 min prévus jusqu'au 22 Marui 2026.</div>
+        </div>
+        <div class="alert-time">Auj.</div>
+      </div>
+      <div class="alert crit">
+        <div class="alert-icon">🚨</div>
+        <div class="alert-body">
+          <div class="alert-title">KT 3012 Ékonille supprimé</div>
+          <div class="alert-desc">Train KT 3012 de 14h22 vers Ékonille-Ville supprimé aujourd'hui.</div>
+        </div>
+        <div class="alert-time">14h22</div>
+      </div>
+      <div class="alert info">
+        <div class="alert-icon">ℹ️</div>
+        <div class="alert-body">
+          <div class="alert-title">Nouvelle ligne KT — Greenwelsh</div>
+          <div class="alert-desc">Ouverture de la ligne Damehishiwa–Greenwelsh Capital le 1er Akril 2026.</div>
+        </div>
+        <div class="alert-time">22 Mar.</div>
+      </div>
+
+      <!-- Départs live -->
+      <div class="sec-row sec mt16">
+        <div><div class="sec-eyebrow">// En direct — Damehishiwa</div></div>
+        <button class="sec-link" onclick="switchTab('horaires')">Tous →</button>
+      </div>
+      <div id="dep-list"></div>
+
+      <div class="pad"></div>
+    </div>
+
+    <!-- ═══ PAGE: HORAIRES ═══ -->
+    <div class="page" id="page-horaires">
+      <div class="sec mb16">
+        <div class="sec-eyebrow">// Recherche</div>
+        <div class="sec-title"><b>Horaires</b> & <em>billets</em></div>
+      </div>
+
+      <div class="search-widget" style="margin-bottom:16px">
+        <div class="sw-stations">
+          <div class="sw-field">
+            <div class="sw-dot"><div class="dot-from"></div></div>
+            <div class="sw-text">
+              <div class="sw-text-label">Départ</div>
+              <input id="from-in" style="background:none;border:none;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:600;color:#fff;outline:none;width:100%" value="Damehishiwa Centrale" placeholder="Gare de départ…"/>
+            </div>
+          </div>
+          <div class="sw-connector" onclick="swapInputs()">⇅</div>
+          <div class="sw-field">
+            <div class="sw-dot"><div class="dot-to"></div></div>
+            <div class="sw-text">
+              <div class="sw-text-label">Arrivée</div>
+              <input id="to-in" style="background:none;border:none;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:600;color:#fff;outline:none;width:100%" value="Palfède-sur-Léra" placeholder="Gare d'arrivée…"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-eyebrow mb16">// Résultats — Mordaki 17 Marui 2026</div>
+      <div id="journeys-list"></div>
+      <div class="pad"></div>
+    </div>
+
+    <!-- ═══ PAGE: SERVICES ═══ -->
+    <div class="page" id="page-services">
+      <div class="sec mb16">
+        <div class="sec-eyebrow">// Groupe Kotra</div>
+        <div class="sec-title"><b>Nos</b> <em>services</em></div>
+      </div>
+
+      <div class="svc-hero" data-emoji="🚂" onclick="toast('🚂 Réseau ferroviaire — 16 États, 340 gares')">
+        <div class="svc-hero-icon">🚂</div>
+        <div class="svc-hero-text">
+          <div class="svc-hero-name">Kotra — Réseau national</div>
+          <div class="svc-hero-desc">Grande vitesse, intercités, régional et fret dans les 16 États du Kochako</div>
+        </div>
+        <div class="svc-hero-badge badge-blue">Réseau</div>
+      </div>
+
+      <div class="svc-hero" data-emoji="✈️" onclick="toast('✈️ Kochair — Compagnie nationale du Kochako')">
+        <div class="svc-hero-icon">✈️</div>
+        <div class="svc-hero-text">
+          <div class="svc-hero-name">Kochair</div>
+          <div class="svc-hero-desc">Compagnie aérienne nationale · Vols intérieurs et internationaux</div>
+        </div>
+        <div class="svc-hero-badge badge-gold">Prestige</div>
+      </div>
+
+      <div class="svc-grid mt16 mb16">
+        <div class="svc-card" data-emoji="🚇" onclick="toast('🚇 Palfetro — 4 lignes, 38 stations')">
+          <div class="svc-card-icon">🚇</div>
+          <div class="svc-card-name">Palfetro</div>
+          <div class="svc-card-desc">Métro de Palfède · 4 lignes</div>
+        </div>
+        <div class="svc-card" data-emoji="🚚" onclick="toast('🚚 Kotra Fret — Transport de marchandises')">
+          <div class="svc-card-icon">🚚</div>
+          <div class="svc-card-name">Kotra Fret</div>
+          <div class="svc-card-desc">Fret ferroviaire national</div>
+        </div>
+        <div class="svc-card" data-emoji="🗺️" onclick="toast('🗺️ Carte interactive du réseau Kotra')">
+          <div class="svc-card-icon">🗺️</div>
+          <div class="svc-card-name">Carte réseau</div>
+          <div class="svc-card-desc">Lignes et gares interactives</div>
+        </div>
+        <div class="svc-card" data-emoji="🏔️" onclick="toast('🏔️ Kotra Montagne — Lignes de montagne')">
+          <div class="svc-card-icon">🏔️</div>
+          <div class="svc-card-name">Montagne</div>
+          <div class="svc-card-desc">Lignes et trains de montagne</div>
+        </div>
+      </div>
+
+      <!-- KOT Médias -->
+      <div class="sec mb16">
+        <div class="sec-eyebrow">// KOT Médias</div>
+        <div class="sec-title"><em>Chaînes</em> <b>Kotra</b></div>
+      </div>
+      <div class="kot-row" onclick="toast('📺 KOT1 — En direct')"><div class="kot-logo kl1">KOT1</div><div class="kot-info"><div class="kot-name">KOT1</div><div class="kot-desc">Chaîne généraliste · Langue kochole</div></div><div class="live-pip lp-live">● LIVE</div></div>
+      <div class="kot-row" onclick="toast('📺 KOT2 — En direct')"><div class="kot-logo kl2">KOT2</div><div class="kot-info"><div class="kot-name">KOT2</div><div class="kot-desc">General entertainment · English</div></div><div class="live-pip lp-lang">EN</div></div>
+      <div class="kot-row" onclick="toast('📺 KOT3 — En direct')"><div class="kot-logo kl3">KOT3</div><div class="kot-info"><div class="kot-name">KOT3</div><div class="kot-desc">Chaîne généraliste · Français</div></div><div class="live-pip lp-lang">FR</div></div>
+      <div class="kot-row" onclick="toast('📺 KOT24 — Info continue 24h/24')"><div class="kot-logo kl4">KOT24</div><div class="kot-info"><div class="kot-name">KOT24</div><div class="kot-desc">Info en continu · KO · EN · FR</div></div><div class="live-pip lp-live">● LIVE</div></div>
+
+      <div class="pad"></div>
+    </div>
+
+    <!-- ═══ PAGE: PROFIL ═══ -->
+    <div class="page" id="page-profile">
+      <div class="profile-hero">
+        <div class="ph-av">👤</div>
+        <div class="ph-name">Voyageur Kochol</div>
+        <div class="ph-sub">Connectez-vous pour accéder à votre compte</div>
+        <div class="ph-card">
+          <div class="ph-card-label">🎫 Carte Kotra+</div>
+          <div class="ph-card-num">KT •••• •••• 4821</div>
+        </div>
+        <div class="ph-stats">
+          <div class="ph-stat"><div class="ph-stat-n">0</div><div class="ph-stat-l">Trajets</div></div>
+          <div class="ph-stat"><div class="ph-stat-n">0</div><div class="ph-stat-l">Points</div></div>
+          <div class="ph-stat"><div class="ph-stat-n">16</div><div class="ph-stat-l">États</div></div>
+        </div>
+      </div>
+
+      <div class="pass-card mb16">
+        <div class="pass-label">🎫 Abonnement actif</div>
+        <div class="pass-name">Kotra+ Annuel — 2ème classe</div>
+        <div class="pass-valid">Valable jusqu'au 31 Dikimbrui 2026</div>
+        <div class="pass-bar-bg"><div class="pass-bar-fill"></div></div>
+        <div class="pass-bar-labels"><span>1 Jan.</span><span>31 Dik. 2026</span></div>
+      </div>
+
+      <div class="sec-eyebrow mb16">// Mon compte</div>
+      <div class="pmenu-item" onclick="openSheet()"><div class="pm-icon pm1">🎫</div><div class="pm-info"><div class="pm-title">Mes billets</div><div class="pm-sub">Billets actifs et historique des voyages</div></div><div class="pm-arrow">›</div></div>
+      <div class="pmenu-item" onclick="toast('🔔 Alertes sur vos lignes favorites')"><div class="pm-icon pm2">🔔</div><div class="pm-info"><div class="pm-title">Alertes trafic</div><div class="pm-sub">Notifications personnalisées</div></div><div class="pm-arrow">›</div></div>
+      <div class="pmenu-item" onclick="toast('💳 Renouveler · Kotra+ Annuel')"><div class="pm-icon pm3">💳</div><div class="pm-info"><div class="pm-title">Mon abonnement</div><div class="pm-sub">Kotra+ Annuel · Gérer et renouveler</div></div><div class="pm-arrow">›</div></div>
+      <div class="pmenu-item" onclick="toast('♿ Options d\'accessibilité et assistance PMR')"><div class="pm-icon pm4">♿</div><div class="pm-info"><div class="pm-title">Accessibilité</div><div class="pm-sub">PMR, assistance, options spéciales</div></div><div class="pm-arrow">›</div></div>
+      <div class="pmenu-item" onclick="toast('⚙️ Paramètres de l\'application')"><div class="pm-icon pm5">⚙️</div><div class="pm-info"><div class="pm-title">Paramètres</div><div class="pm-sub">Langue, notifications, confidentialité</div></div><div class="pm-arrow">›</div></div>
+
+      <div style="text-align:center;margin:28px 0 12px;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);line-height:2">
+        Kotra — Kochako Tranui · Kotra Company<br/>
+        Damehishiwa, Kochako · v4.2.0<br/>
+        © 2026 Kotra Company · Tous droits réservés
+      </div>
+      <div class="pad"></div>
+    </div>
+
+  </div><!-- /scroll -->
+
+  <!-- TAB BAR -->
+  <div class="tabbar">
+    <button class="tab active" id="tab-home" onclick="switchTab('home')">
+      <div class="tab-top"></div>
+      <span class="tab-icon">🏠</span>
+      <span class="tab-label">Accueil</span>
+    </button>
+    <button class="tab" id="tab-horaires" onclick="switchTab('horaires')">
+      <div class="tab-top"></div>
+      <span class="tab-icon">🕐</span>
+      <span class="tab-label">Horaires</span>
+    </button>
+    <button class="tab" id="tab-services" onclick="switchTab('services')">
+      <div class="tab-top"></div>
+      <span class="tab-icon">🌐</span>
+      <span class="tab-label">Services</span>
+    </button>
+    <button class="tab" id="tab-profile" onclick="switchTab('profile')">
+      <div class="tab-top"></div>
+      <span class="tab-icon">👤</span>
+      <span class="tab-label">Mon compte</span>
+    </button>
+  </div>
+</div>
+
+<script>
+const DEPS = [
+  {time:"08:24",id:"KT 2847",dest:"Palfède-sur-Léra",via:"Grande vitesse · Direct",s:"ok",st:"À l'heure",voie:"Voie 3"},
+  {time:"08:41",id:"KT 1204",dest:"Damehigashi",via:"Intercités · Direct",s:"late",st:"+8 min",voie:"Voie 7"},
+  {time:"09:05",id:"KT 3012",dest:"Ékonille-Ville",via:"via Greenwelsh",s:"cancel",st:"Supprimé",voie:"Voie 2"},
+  {time:"09:18",id:"KR 440",dest:"Guyadelvez",via:"Régional · Direct",s:"ok",st:"À l'heure",voie:"Voie 5"},
+  {time:"09:33",id:"KT 2851",dest:"Palfède-sur-Léra",via:"Grande vitesse · Direct",s:"ok",st:"À l'heure",voie:"Voie 3"},
+  {time:"10:00",id:"KT 880",dest:"Caliordie",via:"Intercités",s:"late",st:"+5 min",voie:"Voie 1"},
+];
+
+const JOURNEYS = [
+  {dep:"08:24",arr:"10:11",dur:"1h 47",price:"12 FꝂ",type:"Grande vitesse",tags:["Direct","1ère cl."],promo:false},
+  {dep:"09:05",arr:"11:02",dur:"1h 57",price:"8 FꝂ",type:"Intercités",tags:["Direct","2ème cl."],promo:true},
+  {dep:"09:33",arr:"11:28",dur:"1h 55",price:"10 FꝂ",type:"Grande vitesse",tags:["Direct","1ère cl."],promo:false},
+  {dep:"10:15",arr:"12:44",dur:"2h 29",price:"6 FꝂ",type:"Régional",tags:["1 correspondance","2ème cl."],promo:true},
+  {dep:"11:00",arr:"12:47",dur:"1h 47",price:"14 FꝂ",type:"Grande vitesse",tags:["Direct","Toutes classes"],promo:false},
+];
+
+function renderDeps(){
+  document.getElementById('dep-list').innerHTML = DEPS.map(d=>`
+    <div class="departure" onclick="toast('🚂 ${d.id} → ${d.dest}')">
+      <div class="dep-time">${d.time}</div>
+      <div class="dep-sep"></div>
+      <div class="dep-info">
+        <div class="dep-train">${d.id}</div>
+        <div class="dep-dest">${d.dest}</div>
+        <div class="dep-via">${d.via}</div>
+      </div>
+      <div class="dep-right">
+        <div class="dep-status s-${d.s}">${d.st}</div>
+        <div class="dep-voie">${d.voie}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderJourneys(){
+  document.getElementById('journeys-list').innerHTML = JOURNEYS.map((j,i)=>`
+    <div class="journey${i===0?' picked':''}" onclick="pickJourney(this)">
+      <div class="j-top">
+        <div class="j-times">
+          <div class="j-dep">${j.dep}</div>
+          <div class="j-arrow">→</div>
+          <div class="j-arr">${j.arr}</div>
+        </div>
+        <div class="j-price">${j.price}</div>
+      </div>
+      <div class="j-track-row">
+        <div class="j-dot"></div>
+        <div class="j-line"></div>
+        <div class="j-dot2"></div>
+        <span class="j-dur">${j.dur}</span>
+      </div>
+      <div class="j-tags">
+        <span class="j-tag t-type">${j.type}</span>
+        ${j.tags.map(t=>`<span class="j-tag${t==='Direct'?' t-direct':''}">${t}</span>`).join('')}
+        ${j.promo?'<span class="j-tag t-promo">🏷️ Promo</span>':''}
+      </div>
+    </div>
+  `).join('') + `<button class="book-cta" onclick="toast('🎫 Réservation en cours…')">Réserver ce trajet →</button>`;
+}
+
+function pickJourney(el){
+  document.querySelectorAll('.journey').forEach(j=>j.classList.remove('picked'));
+  el.classList.add('picked');
+}
+
+function swapSta(){
+  const f=document.getElementById('from-lbl'),t=document.getElementById('to-lbl');
+  [f.textContent,t.textContent]=[t.textContent,f.textContent];
+  toast('⇅ Gares inversées');
+}
+function swapInputs(){
+  const f=document.getElementById('from-in'),t=document.getElementById('to-in');
+  [f.value,t.value]=[t.value,f.value];
+  toast('⇅ Gares inversées');
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('scrollEl').scrollTop=0;
+}
+
+function openSheet(){document.getElementById('sheet').classList.add('open');document.getElementById('ov').classList.add('open');}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');document.getElementById('ov').classList.remove('open');}
+
+let _tto;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tto);
+  _tto=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+renderDeps();
+renderJourneys();
+</script>
+</body>
+</html>
